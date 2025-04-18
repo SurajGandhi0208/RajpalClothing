@@ -5,12 +5,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     hamburger.addEventListener('click', () => {
         navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
     });
 
-    // Close menu when a link is clicked
     navLinks.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
             navLinks.classList.remove('active');
+            hamburger.classList.remove('active');
         });
     });
 });
@@ -77,10 +78,10 @@ function changeSlide(n, location) {
     const slider = document.getElementById(`${location}-slider`).querySelector('.slider');
     const slides = slider.querySelectorAll('.slide');
     
-    sliders[location].currentSlide = 
-        (sliders[location].currentSlide + n + slides.length) % slides.length;
+    sliders[location].currentSlide = (sliders[location].currentSlide + n + slides.length) % slides.length;
     
     slider.style.transform = `translateX(-${sliders[location].currentSlide * 100}%)`;
+    slider.style.transition = 'transform 0.6s ease-in-out';
 }
 
 // Touch swipe support for sliders
@@ -91,6 +92,7 @@ document.querySelectorAll('.slider-container').forEach(container => {
 
     slider.addEventListener('touchstart', e => {
         touchStartX = e.changedTouches[0].screenX;
+        slider.style.transition = 'none'; // Disable transition during touch
     });
 
     slider.addEventListener('touchend', e => {
@@ -101,62 +103,82 @@ document.querySelectorAll('.slider-container').forEach(container => {
         } else if (touchEndX - touchStartX > 50) {
             changeSlide(-1, location); // Swipe right
         }
+        slider.style.transition = 'transform 0.6s ease-in-out'; // Re-enable transition
     });
 });
 
-// Number counter animation
+// Number counter animation with easing
 function animateNumbers() {
     const numbers = document.querySelectorAll('.number');
     numbers.forEach(number => {
         const target = +number.getAttribute('data-target');
-        const increment = target / 100;
-        let current = 0;
+        let start = 0;
+        const duration = 2000;
+        const startTime = performance.now();
 
-        const updateNumber = () => {
-            current += increment;
-            if (current < target) {
-                number.textContent = Math.ceil(current).toLocaleString();
+        function easeInOutQuad(t) {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        }
+
+        function updateNumber(currentTime) {
+            const progress = Math.min((currentTime - startTime) / duration, 1);
+            const easedProgress = easeInOutQuad(progress);
+            const current = start + (target - start) * easedProgress;
+
+            if (progress < 1) {
+                number.textContent = Math.floor(current).toLocaleString();
                 requestAnimationFrame(updateNumber);
             } else {
-                number.textContent = target > 1000 ? 
-                    (target/100000).toFixed(0) + ' Lakh' : target;
+                number.textContent = target > 1000 ? (target / 100000).toFixed(0) + ' Lakh' : target.toLocaleString();
             }
-        };
-        
+        }
+
         const observer = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) {
-                updateNumber();
+                requestAnimationFrame(updateNumber);
                 observer.unobserve(number.parentElement);
             }
         }, { threshold: 0.5 });
-        
+
         observer.observe(number.parentElement);
     });
 }
 
-// Scroll Reveal
-ScrollReveal({ reset: false }).reveal('.hero-content, .section', {
-    delay: 200,
-    distance: '50px',
-    origin: 'bottom',
+// Enhanced Scroll Reveal
+ScrollReveal({
+    reset: false,
+    distance: '60px',
+    duration: 1000,
+    easing: 'cubic-bezier(0.5, 0, 0.1, 1)',
     interval: 200,
     once: true
 });
 
-ScrollReveal({ reset: false }).reveal('.number-card, .content-card', {
-    delay: 300,
-    distance: '30px',
-    origin: 'bottom',
-    interval: 200,
-    once: true
+ScrollReveal().reveal('.hero-content', {
+    origin: 'top',
+    opacity: 0,
+    scale: 0.9,
+    rotate: { x: 10, y: 0, z: 0 }
 });
 
-// Auto-rotate slides
+ScrollReveal().reveal('.number-card, .content-card', {
+    origin: 'bottom',
+    opacity: 0,
+    scale: 0.95
+});
+
+ScrollReveal().reveal('.slider-container', {
+    origin: 'left',
+    opacity: 0,
+    distance: '80px'
+});
+
+// Auto-rotate slides with smooth transition
 setInterval(() => {
     Object.keys(sliders).forEach(location => {
         changeSlide(1, location);
     });
 }, 5000);
 
-// Initialize number animation
+// Initialize animations
 document.addEventListener('DOMContentLoaded', animateNumbers, { once: true });
