@@ -1,0 +1,215 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>राजपाल - Since 1995</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Noto+Serif+Devanagari:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo">
+                <img src="logo.png" alt="Rajpal Logo" class="logo-img">
+                <span class="logo-text">राजपाल</span>
+            </a>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#numbers">Our Reach</a>
+                <a href="#why">Why Us</a>
+                <a href="#who">Who We Are</a>
+                <a href="#locations">Locations</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Traditional Clothing Since 1995</h1>
+            <p>Quality fabrics, authentic designs, unmatched craftsmanship</p>
+        </div>
+    </section>
+
+    <!-- Rajpal Numbers Section -->
+    <section class="numbers-section" id="numbers">
+        <h2>Our Reach</h2>
+        <div class="numbers-container">
+            <div class="number-card">
+                <i class="fas fa-users number-icon"></i>
+                <div class="number-wrapper">
+                    <span class="number" data-target="200">0</span>
+                    <span class="number-suffix">+</span>
+                </div>
+                <p>Employees</p>
+            </div>
+            <div class="number-card">
+                <i class="fas fa-store number-icon"></i>
+                <span class="number" data-target="5">0</span>
+                <p>Shops</p>
+            </div>
+            <div class="number-card">
+                <i class="fas fa-smile number-icon"></i>
+                <div class="number-wrapper">
+                    <span class="number" data-target="500000">0</span>
+                    <span class="number-suffix">+</span>
+                </div>
+                <p>Happy Customers</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Us Section -->
+    <section class="section" id="why">
+        <h2>Why Choose Us</h2>
+        <div class="content-card">
+            <p>Three generations of expertise in traditional clothing manufacturing. We blend timeless craftsmanship with modern quality standards to deliver authentic Indian attire that celebrates our rich heritage.</p>
+        </div>
+    </section>
+
+    <!-- Who We Are Section -->
+    <section class="section" id="who">
+        <h2>Who We Are</h2>
+        <div class="content-card">
+            <p>A family-owned business serving the community with quality textiles since 1995. Our passion for traditional clothing drives us to preserve cultural designs while ensuring customer satisfaction.</p>
+        </div>
+    </section>
+
+    <!-- Locations Section -->
+    <section class="section" id="locations">
+        <h2>Our Locations</h2>
+        
+        <div class="location">
+            <h3>Delhi Store</h3>
+            <div class="slider-container">
+                <div class="slider" id="delhi-slider">
+                    <div class="slide"><img src="s11.jpg" alt="Delhi Store 1"></div>
+                    <div class="slide"><img src="s12.jpg" alt="Delhi Store 2"></div>
+                    <div class="slide"><img src="s13.jpg" alt="Delhi Store 3"></div>
+                </div>
+                <button class="slider-btn prev-btn" onclick="changeSlide(-1, 'delhi')">❮</button>
+                <button class="slider-btn next-btn" onclick="changeSlide(1, 'delhi')">❯</button>
+            </div>
+        </div>
+
+        <div class="location">
+            <h3>Mumbai Store</h3>
+            <div class="slider-container">
+                <div class="slider" id="mumbai-slider">
+                    <div class="slide"><img src="s21.png" alt="Mumbai Store 1"></div>
+                    <div class="slide"><img src="s22.jpg" alt="Mumbai Store 2"></div>
+                    <div class="slide"><img src="s23.jpg" alt="Mumbai Store 3"></div>
+                </div>
+                <button class="slider-btn prev-btn" onclick="changeSlide(-1, 'mumbai')">❮</button>
+                <button class="slider-btn next-btn" onclick="changeSlide(1, 'mumbai')">❯</button>
+            </div>
+        </div>
+
+        <div class="location">
+            <h3>Kolkata Store</h3>
+            <div class="slider-container">
+                <div class="slider" id="kolkata-slider">
+                    <div class="slide"><img src="s31.jpg" alt="Kolkata Store 1"></div>
+                    <div class="slide"><img src="s32.jpg" alt="Kolkata Store 2"></div>
+                    <div class="slide"><img src="s33.jpg" alt="Kolkata Store 3"></div>
+                </div>
+                <button class="slider-btn prev-btn" onclick="changeSlide(-1, 'kolkata')">❮</button>
+                <button class="slider-btn next-btn" onclick="changeSlide(1, 'kolkata')">❯</button>
+            </div>
+        </div>
+
+        <div class="location">
+            <h3>Chennai Store</h3>
+            <div class="slider-container">
+                <div class="slider" id="chennai-slider">
+                    <div class="slide"><img src="s41.jpg" alt="Chennai Store 1"></div>
+                    <div class="slide"><img src="s42.jpg" alt="Chennai Store 2"></div>
+                    <div class="slide"><img src="s43.jpg" alt="Chennai Store 3"></div>
+                </div>
+                <button class="slider-btn prev-btn" onclick="changeSlide(-1, 'chennai')">❮</button>
+                <button class="slider-btn next-btn" onclick="changeSlide(1, 'chennai')">❯</button>
+            </div>
+        </div>
+
+        <div class="location">
+            <h3>Bangalore Store</h3>
+            <div class="slider-container">
+                <div class="slider" id="bangalore-slider">
+                    <div class="slide"><img src="s51.jpeg" alt="Bangalore Store 1"></div>
+                    <div class="slide"><img src="s52.avif" alt="Bangalore Store 2"></div>
+                    <div class="slide"><img src="s53.jpg" alt="Bangalore Store 3"></div>
+                </div>
+                <button class="slider-btn prev-btn" onclick="changeSlide(-1, 'bangalore')">❮</button>
+                <button class="slider-btn next-btn" onclick="changeSlide(1, 'bangalore')">❯</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <h2>Contact Us</h2>
+        <form class="contact-form" action="https://formspree.io/f/xyzeqpnn" method="POST">
+            <input type="text" name="name" placeholder="Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <textarea rows="5" name="message" placeholder="Message" required></textarea>
+            <input type="hidden" name="_next" value="https://rajpalclothing.infy.uk/thank-you.html">
+            <button class="btn" type="submit">Send Message</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>© 2023 राजपाल. All rights reserved.</p>
+        <div class="social-icons">
+            <i class="fab fa-facebook"></i>
+            <i class="fab fa-instagram"></i>
+            <i class="fab fa-whatsapp"></i>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script src="script.js"></script>
+</body>
+</html>
