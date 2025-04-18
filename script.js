@@ -1,3 +1,20 @@
+// Hamburger Menu Toggle
+document.addEventListener('DOMContentLoaded', () => {
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+    });
+
+    // Close menu when a link is clicked
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+        });
+    });
+});
+
 // Smooth scroll with offset
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
@@ -23,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         top: targetPosition,
         behavior: 'smooth'
     });
-});
+}, { once: true });
 
 // Form validation
 document.addEventListener('DOMContentLoaded', () => {
@@ -47,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Slider functionality
+// Slider functionality with touch support
 const sliders = {
     delhi: { currentSlide: 0, totalSlides: 3 },
     mumbai: { currentSlide: 0, totalSlides: 3 },
@@ -57,7 +74,7 @@ const sliders = {
 };
 
 function changeSlide(n, location) {
-    const slider = document.getElementById(`${location}-slider`);
+    const slider = document.getElementById(`${location}-slider`).querySelector('.slider');
     const slides = slider.querySelectorAll('.slide');
     
     sliders[location].currentSlide = 
@@ -65,6 +82,27 @@ function changeSlide(n, location) {
     
     slider.style.transform = `translateX(-${sliders[location].currentSlide * 100}%)`;
 }
+
+// Touch swipe support for sliders
+document.querySelectorAll('.slider-container').forEach(container => {
+    const slider = container.querySelector('.slider');
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    slider.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+
+    slider.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        const location = container.id.split('-')[0];
+        if (touchStartX - touchEndX > 50) {
+            changeSlide(1, location); // Swipe left
+        } else if (touchEndX - touchStartX > 50) {
+            changeSlide(-1, location); // Swipe right
+        }
+    });
+});
 
 // Number counter animation
 function animateNumbers() {
@@ -97,18 +135,20 @@ function animateNumbers() {
 }
 
 // Scroll Reveal
-ScrollReveal().reveal('.hero-content, .section', {
+ScrollReveal({ reset: false }).reveal('.hero-content, .section', {
     delay: 200,
     distance: '50px',
     origin: 'bottom',
-    interval: 200
+    interval: 200,
+    once: true
 });
 
-ScrollReveal().reveal('.number-card, .content-card', {
+ScrollReveal({ reset: false }).reveal('.number-card, .content-card', {
     delay: 300,
     distance: '30px',
     origin: 'bottom',
-    interval: 200
+    interval: 200,
+    once: true
 });
 
 // Auto-rotate slides
@@ -119,4 +159,4 @@ setInterval(() => {
 }, 5000);
 
 // Initialize number animation
-document.addEventListener('DOMContentLoaded', animateNumbers);
+document.addEventListener('DOMContentLoaded', animateNumbers, { once: true });
